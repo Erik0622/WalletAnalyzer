@@ -252,7 +252,7 @@ export default function HomePage() {
               
               <div className="card">
                 <h3 className="text-title text-white mb-6">PnL Calendar</h3>
-                <PnLCalendar />
+                <PnLCalendar data={walletData?.calendarData || []} />
               </div>
             </div>
 
