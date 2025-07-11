@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
+import { Search, Loader2, AlertCircle, CheckCircle, Sparkles } from 'lucide-react'
 
 interface WalletSearchProps {
   onWalletFound: (walletData: any) => void
@@ -23,7 +23,7 @@ export default function WalletSearch({ onWalletFound }: WalletSearchProps) {
     
     if (!validateWalletAddress(walletInput)) {
       setStatus('error')
-      setErrorMessage('Ungültige Solana Wallet-Adresse')
+      setErrorMessage('Invalid Solana wallet address format')
       return
     }
 
@@ -32,7 +32,7 @@ export default function WalletSearch({ onWalletFound }: WalletSearchProps) {
     setErrorMessage('')
     
     try {
-      console.log('🔍 Searching wallet:', walletInput)
+      console.log('🔍 Analyzing wallet:', walletInput)
       
       const response = await fetch(`/api/wallet/${walletInput}`)
       const result = await response.json()
@@ -40,15 +40,15 @@ export default function WalletSearch({ onWalletFound }: WalletSearchProps) {
       if (result.success && result.data) {
         setStatus('success')
         onWalletFound(result.data)
-        console.log('✅ Wallet data loaded:', result.meta?.status)
+        console.log('✅ Wallet analysis complete:', result.meta?.status)
       } else {
         setStatus('error')
-        setErrorMessage(result.error || 'Fehler beim Laden der Wallet-Daten')
+        setErrorMessage(result.error || 'Failed to analyze wallet data')
       }
     } catch (error) {
-      console.error('❌ Wallet search failed:', error)
+      console.error('❌ Wallet analysis failed:', error)
       setStatus('error')
-      setErrorMessage('Netzwerkfehler - bitte versuchen Sie es erneut')
+      setErrorMessage('Network error - please try again')
     } finally {
       setIsLoading(false)
     }
@@ -63,22 +63,25 @@ export default function WalletSearch({ onWalletFound }: WalletSearchProps) {
   const getStatusIcon = () => {
     switch (status) {
       case 'loading':
-        return <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+        return <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-400" />
+        return <CheckCircle className="w-5 h-5 text-green-400" />
       case 'error':
-        return <AlertCircle className="w-4 h-4 text-red-400" />
+        return <AlertCircle className="w-5 h-5 text-red-400" />
       default:
-        return <Search className="w-4 h-4 text-gray-400" />
+        return <Search className="w-5 h-5 text-gray-400" />
     }
   }
 
   return (
-    <div className="mb-8">
-      <div className="glass rounded-xl p-6 border border-primary-500/30">
-        <h2 className="text-xl font-bold text-white mb-4">Wallet Analysieren</h2>
+    <div className="mb-12">
+      <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl p-8 border border-slate-700/50">
+        <div className="flex items-center gap-2 mb-6">
+          <Sparkles className="w-6 h-6 text-blue-400" />
+          <h2 className="text-2xl font-bold text-white">Analyze Wallet</h2>
+        </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <div className="flex-1">
             <div className="relative">
               <input
@@ -86,51 +89,58 @@ export default function WalletSearch({ onWalletFound }: WalletSearchProps) {
                 value={walletInput}
                 onChange={(e) => setWalletInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Solana Wallet-Adresse eingeben..."
-                className="w-full pl-10 pr-4 py-3 bg-dark-800/50 border border-dark-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all duration-200"
+                placeholder="Enter Solana wallet address..."
+                className="w-full pl-12 pr-4 py-4 bg-slate-900/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200"
                 disabled={isLoading}
               />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                 {getStatusIcon()}
               </div>
             </div>
             
             {status === 'error' && errorMessage && (
-              <p className="text-red-400 text-sm mt-2 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                {errorMessage}
-              </p>
+              <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-400 text-sm flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  {errorMessage}
+                </p>
+              </div>
             )}
             
             {status === 'success' && (
-              <p className="text-green-400 text-sm mt-2 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                Wallet-Daten erfolgreich geladen
-              </p>
+              <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-green-400 text-sm flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                  Wallet analysis complete
+                </p>
+              </div>
             )}
           </div>
           
           <button
             onClick={searchWallet}
             disabled={isLoading || !walletInput.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[140px] justify-center"
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Analysiere...
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Analyzing...
               </>
             ) : (
               <>
-                <Search className="w-4 h-4" />
-                Analysieren
+                <Search className="w-5 h-5" />
+                Analyze
               </>
             )}
           </button>
         </div>
         
-        <div className="mt-4 text-sm text-gray-400">
-          <p>💡 Beispiel: 4EPNLZHUnEbpxZm6qTPkXpMG2EDektbjUA1yAugHJLc4</p>
+        <div className="mt-6 flex items-center gap-2 text-sm text-gray-400">
+          <span>💡 Try:</span>
+          <code className="bg-slate-800 px-2 py-1 rounded text-blue-400 font-mono text-xs">
+            4EPNLZHUnEbpxZm6qTPkXpMG2EDektbjUA1yAugHJLc4
+          </code>
         </div>
       </div>
     </div>

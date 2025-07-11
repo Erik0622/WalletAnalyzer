@@ -1,18 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Filter, ChevronDown, Zap, Clock, DollarSign, X } from 'lucide-react'
+import { useState } from 'react'
+import { Filter, X, DollarSign, Clock, Zap } from 'lucide-react'
 
 interface FilterState {
-  marketCap: {
-    min: number | null
-    max: number | null
-  }
+  marketCap: { min: number | null; max: number | null }
   pumpFunOnly: boolean
-  holdingDuration: {
-    min: number | null // in hours
-    max: number | null // in hours
-  }
+  holdingDuration: { min: number | null; max: number | null }
 }
 
 interface AdvancedFiltersProps {
@@ -21,210 +15,150 @@ interface AdvancedFiltersProps {
   onClearFilters: () => void
 }
 
-const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
-  filters,
-  onFiltersChange,
-  onClearFilters
-}) => {
+export default function AdvancedFilters({ filters, onFiltersChange, onClearFilters }: AdvancedFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const marketCapRanges = [
-    { label: 'Micro Cap', min: 0, max: 10000 },
-    { label: 'Small Cap', min: 10000, max: 100000 },
-    { label: 'Mid Cap', min: 100000, max: 1000000 },
-    { label: 'Large Cap', min: 1000000, max: null },
-  ]
-
-  const holdingDurations = [
-    { label: 'Scalping (<1h)', min: 0, max: 1 },
-    { label: 'Day Trading (1-24h)', min: 1, max: 24 },
-    { label: 'Swing Trading (1-7d)', min: 24, max: 168 },
-    { label: 'Position Trading (>7d)', min: 168, max: null },
-  ]
-
-  const handleMarketCapChange = (min: number | null, max: number | null) => {
-    onFiltersChange({
-      ...filters,
-      marketCap: { min, max }
-    })
-  }
-
-  const handleHoldingDurationChange = (min: number | null, max: number | null) => {
-    onFiltersChange({
-      ...filters,
-      holdingDuration: { min, max }
-    })
-  }
-
-  const handlePumpFunToggle = () => {
-    onFiltersChange({
-      ...filters,
-      pumpFunOnly: !filters.pumpFunOnly
-    })
+  const updateFilters = (updates: Partial<FilterState>) => {
+    onFiltersChange({ ...filters, ...updates })
   }
 
   const hasActiveFilters = 
-    filters.marketCap.min !== null ||
-    filters.marketCap.max !== null ||
-    filters.pumpFunOnly ||
-    filters.holdingDuration.min !== null ||
+    filters.marketCap.min !== null || 
+    filters.marketCap.max !== null || 
+    filters.pumpFunOnly || 
+    filters.holdingDuration.min !== null || 
     filters.holdingDuration.max !== null
 
   return (
-    <div className="glass rounded-xl border border-dark-600/50">
-      {/* Filter Header */}
-      <div className="p-4 border-b border-dark-700/50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-primary-500/20 rounded-lg">
-              <Filter className="w-4 h-4 text-primary-400" />
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-white">Erweiterte Filter</h3>
-              <p className="text-xs text-gray-400">
-                Verfeinere deine Analyse
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            {hasActiveFilters && (
-              <button
-                onClick={onClearFilters}
-                className="text-xs text-gray-400 hover:text-white flex items-center space-x-1 transition-colors"
-              >
-                <X className="w-3 h-3" />
-                <span>Zurücksetzen</span>
-              </button>
-            )}
+    <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5 text-blue-400" />
+          <h3 className="text-lg font-semibold text-white">Advanced Filters</h3>
+          {hasActiveFilters && (
+            <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+              Active
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {hasActiveFilters && (
             <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className={`p-1 rounded transition-all duration-200 ${
-                isExpanded ? 'text-primary-400 bg-primary-500/20' : 'text-gray-400 hover:text-white'
-              }`}
+              onClick={onClearFilters}
+              className="px-3 py-1 text-gray-400 hover:text-white text-sm transition-colors"
             >
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
-                isExpanded ? 'rotate-180' : ''
-              }`} />
+              Clear All
             </button>
-          </div>
+          )}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+          >
+            <Filter className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
         </div>
       </div>
 
-      {/* Filter Content */}
       {isExpanded && (
-        <div className="p-4 space-y-6">
+        <div className="space-y-6">
           {/* Market Cap Filter */}
           <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <DollarSign className="w-4 h-4 text-primary-400" />
-              <label className="text-sm font-medium text-white">
-                Market Cap
-              </label>
+            <div className="flex items-center gap-2 mb-3">
+              <DollarSign className="w-4 h-4 text-green-400" />
+              <label className="text-sm font-medium text-white">Market Cap Range</label>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {marketCapRanges.map((range, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleMarketCapChange(range.min, range.max)}
-                  className={`p-3 rounded-lg text-xs font-medium transition-all duration-200 border ${
-                    filters.marketCap.min === range.min && filters.marketCap.max === range.max
-                      ? 'bg-primary-500/20 text-primary-400 border-primary-500/30'
-                      : 'bg-dark-800/50 text-gray-300 border-dark-600/50 hover:bg-dark-700/50 hover:text-white'
-                  }`}
-                >
-                  {range.label}
-                  <div className="text-xs text-gray-400 mt-1">
-                    ${range.min.toLocaleString()}
-                    {range.max ? ` - $${range.max.toLocaleString()}` : '+'}
-                  </div>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Min ($)</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={filters.marketCap.min || ''}
+                  onChange={(e) => updateFilters({
+                    marketCap: { 
+                      ...filters.marketCap, 
+                      min: e.target.value ? Number(e.target.value) : null 
+                    }
+                  })}
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Max ($)</label>
+                <input
+                  type="number"
+                  placeholder="∞"
+                  value={filters.marketCap.max || ''}
+                  onChange={(e) => updateFilters({
+                    marketCap: { 
+                      ...filters.marketCap, 
+                      max: e.target.value ? Number(e.target.value) : null 
+                    }
+                  })}
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Pump.fun Filter */}
+          {/* Pump.fun Only Filter */}
           <div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Zap className="w-4 h-4 text-warning-400" />
-                <label className="text-sm font-medium text-white">
-                  Nur Pump.fun Tokens
-                </label>
-              </div>
-              <button
-                onClick={handlePumpFunToggle}
-                className={`relative w-12 h-6 rounded-full transition-all duration-200 ${
-                  filters.pumpFunOnly
-                    ? 'bg-warning-500'
-                    : 'bg-dark-600'
-                }`}
-              >
-                <div
-                  className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ${
-                    filters.pumpFunOnly ? 'left-7' : 'left-1'
-                  }`}
-                />
-              </button>
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-purple-400" />
+              <label className="text-sm font-medium text-white">Token Type</label>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Zeige nur Trades mit Pump.fun Tokens
-            </p>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.pumpFunOnly}
+                onChange={(e) => updateFilters({ pumpFunOnly: e.target.checked })}
+                className="w-4 h-4 rounded border-slate-600 bg-slate-900/50 text-purple-500 focus:ring-purple-400 focus:ring-2"
+              />
+              <span className="text-sm text-gray-300">Pump.fun tokens only</span>
+            </label>
           </div>
 
           {/* Holding Duration Filter */}
           <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Clock className="w-4 h-4 text-success-400" />
-              <label className="text-sm font-medium text-white">
-                Haltedauer
-              </label>
+            <div className="flex items-center gap-2 mb-3">
+              <Clock className="w-4 h-4 text-blue-400" />
+              <label className="text-sm font-medium text-white">Holding Duration (minutes)</label>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-              {holdingDurations.map((duration, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleHoldingDurationChange(duration.min, duration.max)}
-                  className={`p-3 rounded-lg text-xs font-medium transition-all duration-200 border ${
-                    filters.holdingDuration.min === duration.min && filters.holdingDuration.max === duration.max
-                      ? 'bg-success-500/20 text-success-400 border-success-500/30'
-                      : 'bg-dark-800/50 text-gray-300 border-dark-600/50 hover:bg-dark-700/50 hover:text-white'
-                  }`}
-                >
-                  {duration.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Active Filters Summary */}
-          {hasActiveFilters && (
-            <div className="p-3 bg-dark-800/30 rounded-lg border border-dark-700/50">
-              <h4 className="text-xs font-medium text-gray-300 mb-2">Aktive Filter:</h4>
-              <div className="flex flex-wrap gap-2">
-                {filters.marketCap.min !== null && (
-                  <span className="px-2 py-1 bg-primary-500/20 text-primary-400 text-xs rounded">
-                    Market Cap: ${filters.marketCap.min?.toLocaleString()}
-                    {filters.marketCap.max ? ` - $${filters.marketCap.max.toLocaleString()}` : '+'}
-                  </span>
-                )}
-                {filters.pumpFunOnly && (
-                  <span className="px-2 py-1 bg-warning-500/20 text-warning-400 text-xs rounded">
-                    Nur Pump.fun
-                  </span>
-                )}
-                {filters.holdingDuration.min !== null && (
-                  <span className="px-2 py-1 bg-success-500/20 text-success-400 text-xs rounded">
-                    Haltedauer: {filters.holdingDuration.min}h
-                    {filters.holdingDuration.max ? ` - ${filters.holdingDuration.max}h` : '+'}
-                  </span>
-                )}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Min</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={filters.holdingDuration.min || ''}
+                  onChange={(e) => updateFilters({
+                    holdingDuration: { 
+                      ...filters.holdingDuration, 
+                      min: e.target.value ? Number(e.target.value) : null 
+                    }
+                  })}
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">Max</label>
+                <input
+                  type="number"
+                  placeholder="∞"
+                  value={filters.holdingDuration.max || ''}
+                  onChange={(e) => updateFilters({
+                    holdingDuration: { 
+                      ...filters.holdingDuration, 
+                      max: e.target.value ? Number(e.target.value) : null 
+                    }
+                  })}
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-slate-600 rounded-lg text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none"
+                />
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
   )
-}
-
-export default AdvancedFilters 
+} 
