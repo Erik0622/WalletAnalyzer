@@ -44,7 +44,7 @@ export default function HomePage() {
       title: 'Total PnL',
       value: walletData?.totalPnL || 0,
       suffix: ' SOL',
-      change: '+12.5%',
+      change: 12.5,
       changeType: 'positive' as const,
       icon: TrendingUp,
       description: 'Overall profit and loss'
@@ -53,7 +53,7 @@ export default function HomePage() {
       title: 'Win Rate',
       value: walletData?.winRate || 0,
       suffix: '%',
-      change: '+2.3%',
+      change: 2.3,
       changeType: 'positive' as const,
       icon: Target,
       description: 'Percentage of profitable trades'
@@ -62,7 +62,7 @@ export default function HomePage() {
       title: 'Profit Factor',
       value: walletData?.profitFactor || 0,
       suffix: 'x',
-      change: '+0.2x',
+      change: 0.2,
       changeType: 'positive' as const,
       icon: Calculator,
       description: 'Ratio of gross profit to gross loss'
@@ -71,7 +71,7 @@ export default function HomePage() {
       title: 'Total Trades',
       value: walletData?.totalTrades || 0,
       suffix: '',
-      change: '+5',
+      change: 5,
       changeType: 'positive' as const,
       icon: Activity,
       description: 'Number of completed transactions'
@@ -80,7 +80,7 @@ export default function HomePage() {
       title: 'Volume',
       value: walletData?.totalVolume || 0,
       suffix: ' SOL',
-      change: '+8.7%',
+      change: 8.7,
       changeType: 'positive' as const,
       icon: BarChart3,
       description: 'Total trading volume'
@@ -89,7 +89,7 @@ export default function HomePage() {
       title: 'ROI',
       value: walletData?.roi || 0,
       suffix: '%',
-      change: '+1.8%',
+      change: 1.8,
       changeType: 'positive' as const,
       icon: Percent,
       description: 'Return on investment'
