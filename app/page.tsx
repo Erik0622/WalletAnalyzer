@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
 import WalletSearch from '@/components/WalletSearch'
 import MetricsCard from '@/components/MetricsCard'
@@ -230,8 +230,8 @@ export default function HomePage() {
                   {walletData.dataSource === 'real' ? 'Live Data' : 'Demo Mode'}
                 </div>
                 <TimeFrameSelector 
-                  selected={selectedTimeFrame}
-                  onSelect={setSelectedTimeFrame}
+                  selectedTimeFrame={selectedTimeFrame}
+                  onTimeFrameChange={setSelectedTimeFrame}
                 />
               </div>
             </div>
