@@ -1,9 +1,11 @@
 import { Connection, PublicKey, ParsedTransactionWithMeta } from '@solana/web3.js'
 import axios from 'axios'
 
-// Alternative RPC endpoints (rate limiting friendly)
+// Helius Premium RPC endpoint with API key
+const HELIUS_API_KEY = 'fa43e2c8-81f4-4b61-96b7-534ed874139b'
 const RPC_ENDPOINTS = [
-  'https://solana-api.projectserum.com',
+  `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`,
+  // Fallback endpoints (falls Helius nicht verfügbar)
   'https://api.mainnet-beta.solana.com',
   'https://solana-mainnet.rpc.extrnode.com'
 ]
@@ -12,11 +14,11 @@ const RPC_ENDPOINTS = [
 let currentEndpointIndex = 0
 export let connection = new Connection(RPC_ENDPOINTS[0], 'confirmed')
 
-// Retry logic für RPC calls
+// Retry logic für RPC calls (optimiert für Helius Premium)
 async function withRetry<T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  delayMs: number = 1000
+  maxRetries: number = 2,
+  delayMs: number = 500
 ): Promise<T> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -81,10 +83,10 @@ export function validateWalletAddress(address: string): boolean {
   }
 }
 
-// Transaktionen einer Wallet abrufen (mit Rate-Limiting-Schutz)
+// Transaktionen einer Wallet abrufen (mit Helius Premium RPC)
 export async function getWalletTransactions(
   walletAddress: string,
-  limit: number = 50 // Reduziert für bessere Stabilität
+  limit: number = 100 // Erhöht für Helius Premium
 ): Promise<ParsedTransactionWithMeta[]> {
   try {
     const publicKey = new PublicKey(walletAddress)
@@ -100,8 +102,8 @@ export async function getWalletTransactions(
       return []
     }
     
-    // Process in smaller batches to avoid rate limiting
-    const batchSize = 10
+    // Process in larger batches (Helius Premium allows higher throughput)
+    const batchSize = 25
     const allTransactions: ParsedTransactionWithMeta[] = []
     
     for (let i = 0; i < signatures.length; i += batchSize) {
@@ -118,9 +120,9 @@ export async function getWalletTransactions(
       
       allTransactions.push(...(batchTransactions.filter(tx => tx !== null) as ParsedTransactionWithMeta[]))
       
-      // Small delay between batches
+      // Minimal delay between batches (Helius Premium)
       if (i + batchSize < signatures.length) {
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise(resolve => setTimeout(resolve, 50))
       }
     }
     

@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js'
 
 export async function GET() {
   try {
-    console.log('🧪 Starting simple connectivity test...')
+    console.log('🧪 Starting Helius Premium RPC connectivity test...')
     
     // Test 1: Wallet-Adress Validierung
     const testAddress = '4EPNLZHUnEbpxZm6qTPkXpMG2EDektbjUA1yAugHJLc4'
@@ -26,7 +26,7 @@ export async function GET() {
       
       return NextResponse.json({
         success: true,
-        message: 'Basis-Funktionalität erfolgreich getestet',
+        message: 'Helius Premium RPC erfolgreich getestet',
         tests: {
           walletValidation: isValid,
           connectionTest: true,
@@ -35,11 +35,11 @@ export async function GET() {
       })
       
     } catch (rpcError: any) {
-      console.log('⚠️ RPC Error:', rpcError.message)
+      console.log('⚠️ Helius RPC Error:', rpcError.message)
       
       return NextResponse.json({
         success: false,
-        message: 'RPC-Verbindung fehlgeschlagen',
+        message: 'Helius RPC-Verbindung fehlgeschlagen',
         error: rpcError.message,
         tests: {
           walletValidation: isValid,

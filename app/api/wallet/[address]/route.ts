@@ -16,7 +16,7 @@ const generateMockAnalysis = (walletAddress: string) => {
     wins: Math.floor((5 + (seed % 95)) * (30 + (seed % 40)) / 100),
     losses: Math.floor((5 + (seed % 95)) * (70 - (seed % 40)) / 100),
     dataSource: 'mock',
-    note: 'Mock-Daten - echte RPC-Verbindung wird optimiert'
+    note: 'Demo-Daten - Helius Premium RPC wird konfiguriert'
   }
 }
 
@@ -37,19 +37,19 @@ export async function GET(
       }, { status: 400 })
     }
     
-    // Schritt 2: Versuche echte Daten zu laden
+    // Schritt 2: Versuche echte Daten zu laden (Helius Premium RPC)
     let analysis
     let dataSource = 'real'
     
     try {
-      console.log('🔄 Attempting to fetch real transaction data...')
+      console.log('🔄 Fetching real transaction data via Helius Premium...')
       
-      // Timeout für RPC-Aufrufe
+      // Längerer Timeout für Premium RPC (sollte zuverlässiger sein)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 10000)
+        setTimeout(() => reject(new Error('Timeout')), 15000)
       )
       
-      const transactionsPromise = getWalletTransactions(walletAddress, 20)
+      const transactionsPromise = getWalletTransactions(walletAddress, 50)
       
       const transactions = await Promise.race([transactionsPromise, timeoutPromise]) as any
       
@@ -63,7 +63,7 @@ export async function GET(
        }
       
     } catch (rpcError: any) {
-      console.log('⚠️ RPC failed, falling back to mock data:', rpcError.message)
+      console.log('⚠️ Helius RPC failed, falling back to mock data:', rpcError.message)
       
       analysis = generateMockAnalysis(walletAddress)
       dataSource = 'mock'
@@ -87,7 +87,7 @@ export async function GET(
         wallet: walletAddress,
         dataSource,
         timestamp: new Date().toISOString(),
-        status: dataSource === 'real' ? 'live_data' : 'demo_mode'
+        status: dataSource === 'real' ? 'live_helius_data' : 'demo_mode'
       }
     })
     
