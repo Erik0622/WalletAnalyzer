@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Filter, X, DollarSign, Clock, Zap } from 'lucide-react'
 
-interface FilterState {
+export interface FilterState {
   marketCap: { min: number | null; max: number | null }
   pumpFunOnly: boolean
   holdingDuration: { min: number | null; max: number | null }

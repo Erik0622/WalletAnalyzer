@@ -7,6 +7,7 @@ import MetricsCard from '@/components/MetricsCard'
 import PerformanceChart from '@/components/PerformanceChart'
 import PnLCalendar from '@/components/PnLCalendar'
 import AdvancedFilters from '@/components/AdvancedFilters'
+import { FilterState } from '@/components/AdvancedFilters'
 import TimeFrameSelector from '@/components/TimeFrameSelector'
 import { 
   TrendingUp, 
@@ -26,16 +27,23 @@ export default function HomePage() {
   const [walletData, setWalletData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTimeFrame, setSelectedTimeFrame] = useState('7d')
-  const [activeFilters, setActiveFilters] = useState({
-    minMarketCap: 0,
-    maxMarketCap: 1000000000,
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    marketCap: { min: null, max: null },
     pumpFunOnly: false,
-    holdingPeriod: 'all'
+    holdingDuration: { min: null, max: null }
   })
 
   // Handle wallet analysis
   const handleWalletAnalysis = (data: any) => {
     setWalletData(data)
+  }
+
+  const handleClearFilters = () => {
+    setActiveFilters({
+      marketCap: { min: null, max: null },
+      pumpFunOnly: false,
+      holdingDuration: { min: null, max: null }
+    })
   }
 
   // Mock data for demonstration
@@ -262,6 +270,7 @@ export default function HomePage() {
               <AdvancedFilters 
                 filters={activeFilters}
                 onFiltersChange={setActiveFilters}
+                onClearFilters={handleClearFilters}
               />
             </div>
           </div>
