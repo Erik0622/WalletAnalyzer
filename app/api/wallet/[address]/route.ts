@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validateWalletAddress, getWalletTransactions, calculateBasicPnL } from '@/lib/solana'
+import { validateWalletAddress, getWalletTransactions, calculateBasicPnL, connection } from '@/lib/solana'
+import { PublicKey } from '@solana/web3.js'
 
 // Mock-Daten als Fallback
 const generateMockAnalysis = (walletAddress: string) => {
@@ -44,12 +45,16 @@ export async function GET(
     try {
       console.log('🔄 Fetching real transaction data via Helius Premium...')
       
-      // Längerer Timeout für Premium RPC (sollte zuverlässiger sein)
+      // Versuche zunächst eine einfache Balance-Abfrage
+      const simpleBalance = await connection.getBalance(new PublicKey(walletAddress))
+      console.log(`✅ Basic balance check successful: ${simpleBalance / 1e9} SOL`)
+      
+      // Dann versuche Transaktionen abzurufen (mit kürzerem Timeout)
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 15000)
+        setTimeout(() => reject(new Error('Timeout')), 8000)
       )
       
-      const transactionsPromise = getWalletTransactions(walletAddress, 50)
+      const transactionsPromise = getWalletTransactions(walletAddress, 20)
       
       const transactions = await Promise.race([transactionsPromise, timeoutPromise]) as any
       

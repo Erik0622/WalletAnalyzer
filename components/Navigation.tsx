@@ -1,138 +1,114 @@
 'use client'
 
-import React, { useState } from 'react'
-import { 
-  TrendingUp, 
-  BarChart3, 
-  Calendar, 
-  Filter, 
-  Wallet,
-  Menu,
-  X,
-  Settings,
-  Search
-} from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Menu, X, TrendingUp, BarChart3, Calendar, Filter, Search } from 'lucide-react'
 
-const Navigation = () => {
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
+export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const pathname = usePathname()
 
-  const navItems = [
-    { name: 'Dashboard', icon: BarChart3, active: true },
-    { name: 'Performance', icon: TrendingUp, active: false },
-    { name: 'Calendar', icon: Calendar, active: false },
-    { name: 'Filters', icon: Filter, active: false },
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const navigation = [
+    { name: 'Dashboard', href: '/', icon: BarChart3 },
+    { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Calendar', href: '/calendar', icon: Calendar },
+    { name: 'Filters', href: '/filters', icon: Filter },
+    { name: 'Search', href: '/search', icon: Search },
   ]
 
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/'
+    return pathname.startsWith(href)
+  }
+
   return (
-    <nav className="glass border-b border-dark-700/50 sticky top-0 z-50">
+    <nav className={`navbar transition-all duration-300 ${
+      isScrolled ? 'bg-black/90 backdrop-blur-md' : 'bg-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo and Brand */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold gradient-text">
-                  SolAnalyzer
-                </h1>
-                <p className="text-xs text-gray-400 hidden sm:block">
-                  Elevate Your Trading
-                </p>
-              </div>
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
             </div>
-          </div>
+            <span className="text-xl font-bold text-white group-hover:text-gray-300 transition-colors">
+              WalletAnalyzer
+            </span>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                  item.active
-                    ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
-                    : 'text-gray-300 hover:text-white hover:bg-dark-700/50'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{item.name}</span>
-              </button>
-            ))}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => {
+              const Icon = item.icon
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(item.href)
+                      ? 'bg-white/10 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.name}</span>
+                </Link>
+              )
+            })}
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden lg:flex items-center">
-            <div className={`relative transition-all duration-300 ${
-              isSearchFocused ? 'w-80' : 'w-64'
-            }`}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Wallet-Adresse eingeben..."
-                className="w-full pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-600 rounded-lg text-sm text-gray-200 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all duration-200"
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-              />
-            </div>
-          </div>
-
-          {/* Settings and Mobile Menu */}
-          <div className="flex items-center space-x-3">
-            <button className="p-2 text-gray-400 hover:text-white hover:bg-dark-700/50 rounded-lg transition-all duration-200">
-              <Settings className="w-5 h-5" />
-            </button>
-            
-            {/* Mobile menu button */}
+          {/* Mobile menu button */}
+          <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-dark-700/50 rounded-lg transition-all duration-200"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-5 h-5" />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="lg:hidden pb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Wallet-Adresse eingeben..."
-              className="w-full pl-10 pr-4 py-2 bg-dark-800/50 border border-dark-600 rounded-lg text-sm text-gray-200 placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all duration-200"
-            />
-          </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden pb-4">
-            <div className="space-y-2">
-              {navItems.map((item) => (
-                <button
-                  key={item.name}
-                  className={`flex items-center space-x-3 w-full px-4 py-3 rounded-lg transition-all duration-200 ${
-                    item.active
-                      ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30'
-                      : 'text-gray-300 hover:text-white hover:bg-dark-700/50'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
-                </button>
-              ))}
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-black/50 backdrop-blur-md rounded-lg mt-2">
+              {navigation.map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      isActive(item.href)
+                        ? 'bg-white/10 text-white'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         )}
       </div>
     </nav>
   )
-}
-
-export default Navigation 
+} 

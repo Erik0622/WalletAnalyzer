@@ -1,257 +1,294 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
-import MetricsCard from '@/components/MetricsCard'
-import TimeFrameSelector from '@/components/TimeFrameSelector'
-import PerformanceChart from '@/components/PerformanceChart'
-import AdvancedFilters from '@/components/AdvancedFilters'
-import PnLCalendar from '@/components/PnLCalendar'
 import WalletSearch from '@/components/WalletSearch'
-import { WalletAnalysis } from '@/lib/api'
+import MetricsCard from '@/components/MetricsCard'
+import PerformanceChart from '@/components/PerformanceChart'
+import PnLCalendar from '@/components/PnLCalendar'
+import AdvancedFilters from '@/components/AdvancedFilters'
+import TimeFrameSelector from '@/components/TimeFrameSelector'
 import { 
   TrendingUp, 
   DollarSign, 
   Target, 
   Activity, 
-  BarChart3,
-  Volume2,
+  BarChart3, 
   Percent,
-  Trophy,
-  LineChart,
+  Calculator,
   Zap,
+  ArrowRight,
+  CheckCircle,
   Sparkles
 } from 'lucide-react'
 
-interface FilterState {
-  marketCap: { min: number | null; max: number | null }
-  pumpFunOnly: boolean
-  holdingDuration: { min: number | null; max: number | null }
-}
-
-export default function Dashboard() {
+export default function HomePage() {
+  const [walletData, setWalletData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const [selectedTimeFrame, setSelectedTimeFrame] = useState('7d')
-  const [walletData, setWalletData] = useState<WalletAnalysis | null>(null)
-  const [filters, setFilters] = useState<FilterState>({
-    marketCap: { min: null, max: null },
+  const [activeFilters, setActiveFilters] = useState({
+    minMarketCap: 0,
+    maxMarketCap: 1000000000,
     pumpFunOnly: false,
-    holdingDuration: { min: null, max: null }
+    holdingPeriod: 'all'
   })
 
-  const handleWalletAnalysis = (data: WalletAnalysis) => {
+  // Handle wallet analysis
+  const handleWalletAnalysis = (data: any) => {
     setWalletData(data)
   }
 
-  // Generate realistic chart data based on wallet data
-  const generateChartData = () => {
-    if (!walletData) return []
-    
-    const days = 30
-    const baseValue = walletData.totalPnL / days
-    
-    return Array.from({ length: days }, (_, i) => {
-      const date = new Date()
-      date.setDate(date.getDate() - (days - i))
-      
-      const variation = (Math.random() - 0.5) * baseValue * 0.8
-      const dailyPnL = baseValue + variation
-      const cumulative = baseValue * (i + 1) + variation * (i + 1) * 0.3
-      
-      return {
-        date: date.toISOString().split('T')[0],
-        pnl: dailyPnL,
-        cumulative,
-        volume: Math.random() * 50000 + 10000
-      }
-    })
-  }
+  // Mock data for demonstration
+  const mockMetrics = [
+    {
+      title: 'Total PnL',
+      value: walletData?.totalPnL || 0,
+      suffix: ' SOL',
+      change: '+12.5%',
+      changeType: 'positive' as const,
+      icon: TrendingUp,
+      description: 'Overall profit and loss'
+    },
+    {
+      title: 'Win Rate',
+      value: walletData?.winRate || 0,
+      suffix: '%',
+      change: '+2.3%',
+      changeType: 'positive' as const,
+      icon: Target,
+      description: 'Percentage of profitable trades'
+    },
+    {
+      title: 'Profit Factor',
+      value: walletData?.profitFactor || 0,
+      suffix: 'x',
+      change: '+0.2x',
+      changeType: 'positive' as const,
+      icon: Calculator,
+      description: 'Ratio of gross profit to gross loss'
+    },
+    {
+      title: 'Total Trades',
+      value: walletData?.totalTrades || 0,
+      suffix: '',
+      change: '+5',
+      changeType: 'positive' as const,
+      icon: Activity,
+      description: 'Number of completed transactions'
+    },
+    {
+      title: 'Volume',
+      value: walletData?.totalVolume || 0,
+      suffix: ' SOL',
+      change: '+8.7%',
+      changeType: 'positive' as const,
+      icon: BarChart3,
+      description: 'Total trading volume'
+    },
+    {
+      title: 'ROI',
+      value: walletData?.roi || 0,
+      suffix: '%',
+      change: '+1.8%',
+      changeType: 'positive' as const,
+      icon: Percent,
+      description: 'Return on investment'
+    }
+  ]
 
-  // Generate calendar data with proper green/red days
-  const generateCalendarData = () => {
-    if (!walletData) return []
-    
-    const days = 30
-    const winRate = walletData.winRate / 100
-    
-    return Array.from({ length: days }, (_, i) => {
-      const date = new Date()
-      date.setDate(date.getDate() - (days - i))
-      
-      const isWin = Math.random() < winRate
-      const pnl = isWin 
-        ? Math.random() * 2000 + 100 
-        : -(Math.random() * 1000 + 50)
-      
-      return {
-        date: date.toISOString().split('T')[0],
-        pnl,
-        trades: Math.floor(Math.random() * 15) + 1,
-        volume: Math.random() * 100000 + 10000
-      }
-    })
-  }
-
-  const clearFilters = () => {
-    setFilters({
-      marketCap: { min: null, max: null },
-      pumpFunOnly: false,
-      holdingDuration: { min: null, max: null }
-    })
-  }
+  const features = [
+    {
+      icon: TrendingUp,
+      title: 'Advanced Analytics',
+      description: 'Deep insights into your trading performance with real-time data analysis'
+    },
+    {
+      icon: Target,
+      title: 'Precision Tracking',
+      description: 'Accurate PnL calculations and performance metrics for every trade'
+    },
+    {
+      icon: Zap,
+      title: 'Real-Time Updates',
+      description: 'Live data synchronization with the Solana blockchain via Helius RPC'
+    },
+    {
+      icon: BarChart3,
+      title: 'Smart Filtering',
+      description: 'Filter trades by market cap, holding period, and platform-specific criteria'
+    }
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
+    <div className="min-h-screen bg-black">
       <Navigation />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-8 h-8 text-blue-400" />
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              Solana Wallet Analyzer
+      {/* Hero Section */}
+      <section className="hero pt-24 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-8">
+            <div className="flex items-center justify-center space-x-2 mb-6">
+              <Sparkles className="w-6 h-6 text-purple-400" />
+              <span className="text-sm font-medium text-purple-400 tracking-wider uppercase">
+                Premium Analytics
+              </span>
+            </div>
+            
+            <h1 className="text-display text-gradient max-w-4xl mx-auto">
+              Elevate Your Solana Trading
             </h1>
-            <Zap className="w-8 h-8 text-purple-400" />
-          </div>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Professional-grade analytics for your Solana wallet. Track performance, analyze trades, and maximize your returns.
-          </p>
-        </div>
+            
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              Professional-grade wallet analysis with real-time insights, advanced metrics, 
+              and institutional-quality reporting for serious traders.
+            </p>
 
-        {/* Wallet Search */}
-        <WalletSearch onWalletFound={handleWalletAnalysis} />
-
-        {/* Dashboard Content */}
-        {walletData ? (
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Portfolio Performance
-                  </h2>
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-gray-300">
-                      Wallet: <span className="font-mono text-blue-400 break-all">{walletData.wallet}</span>
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      walletData.dataSource === 'mock' 
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
-                        : 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    }`}>
-                      {walletData.dataSource === 'mock' ? 'Demo Mode' : 'Live Data'}
-                    </span>
-                  </div>
-                </div>
-                <div className="mt-4 lg:mt-0">
-                  <TimeFrameSelector 
-                    selectedTimeFrame={selectedTimeFrame}
-                    onTimeFrameChange={setSelectedTimeFrame}
-                  />
-                </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Helius Premium RPC</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Real-time Data</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Advanced Analytics</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <MetricsCard
-                title="Total P&L"
-                value={Math.abs(walletData.totalPnL).toFixed(2)}
-                prefix="$"
-                changeType={walletData.totalPnL >= 0 ? 'positive' : 'negative'}
-                icon={<DollarSign className="w-5 h-5" />}
-                subtitle={selectedTimeFrame.toUpperCase()}
-              />
-              <MetricsCard
-                title="Win Rate"
-                value={walletData.winRate.toFixed(1)}
-                suffix="%"
-                changeType={walletData.winRate > 50 ? 'positive' : 'negative'}
-                icon={<Target className="w-5 h-5" />}
-                subtitle={`${walletData.wins}W / ${walletData.losses}L`}
-              />
-              <MetricsCard
-                title="Profit Factor"
-                value={walletData.profitFactor.toFixed(2)}
-                changeType={walletData.profitFactor > 1 ? 'positive' : 'negative'}
-                icon={<Trophy className="w-5 h-5" />}
-                subtitle="Risk/Reward"
-              />
-              <MetricsCard
-                title="Total Trades"
-                value={walletData.totalTrades}
-                icon={<Activity className="w-5 h-5" />}
-                subtitle={`~${(walletData.totalTrades / 30).toFixed(1)} per day`}
-              />
-            </div>
-
-            {/* Additional Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <MetricsCard
-                title="Volume"
-                value={(walletData.totalVolume / 1000).toFixed(1)}
-                suffix="K"
-                prefix="$"
-                icon={<Volume2 className="w-5 h-5" />}
-                subtitle="Total traded"
-              />
-              <MetricsCard
-                title="ROI"
-                value={walletData.roi.toFixed(2)}
-                suffix="%"
-                changeType={walletData.roi > 0 ? 'positive' : 'negative'}
-                icon={<Percent className="w-5 h-5" />}
-                subtitle="Return on Investment"
-              />
-              <MetricsCard
-                title="Sharpe Ratio"
-                value={walletData.sharpeRatio.toFixed(2)}
-                changeType={walletData.sharpeRatio > 1 ? 'positive' : 'negative'}
-                icon={<BarChart3 className="w-5 h-5" />}
-                subtitle="Risk-adjusted return"
-              />
-            </div>
-
-            {/* Filters */}
-            <AdvancedFilters
-              filters={filters}
-              onFiltersChange={setFilters}
-              onClearFilters={clearFilters}
+      {/* Wallet Search Section */}
+      <section className="py-12 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto">
+            <WalletSearch 
+              onAnalysisComplete={handleWalletAnalysis}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
             />
+          </div>
+        </div>
+      </section>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              <div className="xl:col-span-2">
-                <PerformanceChart
-                  data={generateChartData()}
-                  timeFrame={selectedTimeFrame}
+      {/* Features Section */}
+      {!walletData && (
+        <section className="py-16 border-t border-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-headline text-white mb-4">
+                Why Choose WalletAnalyzer?
+              </h2>
+              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+                Built for professional traders who demand precision, speed, and reliability
+              </p>
+            </div>
+
+            <div className="grid-auto-fit">
+              {features.map((feature, index) => (
+                <div key={index} className="card card-glow group cursor-pointer">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                      <feature.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="text-title text-white group-hover:text-purple-400 transition-colors">
+                      {feature.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Dashboard Section */}
+      {walletData && (
+        <section className="py-16 space-y-section">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            {/* Status */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-headline text-white mb-2">
+                  Portfolio Analysis
+                </h2>
+                <p className="text-gray-400">
+                  Wallet: {walletData.wallet}
+                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className={`status-indicator ${
+                  walletData.dataSource === 'real' ? 'status-success' : 'status-warning'
+                }`}>
+                  <div className="w-2 h-2 bg-current rounded-full animate-pulse" />
+                  {walletData.dataSource === 'real' ? 'Live Data' : 'Demo Mode'}
+                </div>
+                <TimeFrameSelector 
+                  selected={selectedTimeFrame}
+                  onSelect={setSelectedTimeFrame}
                 />
               </div>
-              <div>
-                <PnLCalendar data={generateCalendarData()} />
+            </div>
+
+            {/* Metrics Grid */}
+            <div className="grid-auto-fit">
+              {mockMetrics.map((metric, index) => (
+                <MetricsCard key={index} {...metric} />
+              ))}
+            </div>
+
+            {/* Charts and Calendar */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="card">
+                <h3 className="text-title text-white mb-6">Performance Chart</h3>
+                <PerformanceChart timeFrame={selectedTimeFrame} />
+              </div>
+              
+              <div className="card">
+                <h3 className="text-title text-white mb-6">PnL Calendar</h3>
+                <PnLCalendar />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="text-center py-32">
-            <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-sm rounded-2xl p-12 border border-slate-700/50 max-w-2xl mx-auto">
-              <LineChart className="mx-auto h-16 w-16 text-blue-400 mb-6 animate-pulse" />
-              <h2 className="text-3xl font-bold text-white mb-4">Ready to Analyze</h2>
-              <p className="text-lg text-gray-400 mb-8">
-                Enter a Solana wallet address above to begin comprehensive portfolio analysis
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center text-sm text-gray-500">
-                <span className="bg-slate-800 px-3 py-1 rounded-full">P&L Tracking</span>
-                <span className="bg-slate-800 px-3 py-1 rounded-full">Win Rate Analysis</span>
-                <span className="bg-slate-800 px-3 py-1 rounded-full">Risk Metrics</span>
-                <span className="bg-slate-800 px-3 py-1 rounded-full">Calendar View</span>
-              </div>
+
+            {/* Advanced Filters */}
+            <div className="card">
+              <h3 className="text-title text-white mb-6">Advanced Filters</h3>
+              <AdvancedFilters 
+                filters={activeFilters}
+                onFiltersChange={setActiveFilters}
+              />
             </div>
           </div>
-        )}
-      </main>
+        </section>
+      )}
+
+      {/* Footer */}
+      <footer className="py-12 border-t border-gray-800 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-lg font-bold text-white">WalletAnalyzer</span>
+            </div>
+            
+            <div className="flex items-center space-x-6 text-sm text-gray-400">
+              <span>© 2025 WalletAnalyzer</span>
+              <span>•</span>
+              <span>Powered by Helius RPC</span>
+              <span>•</span>
+              <span>Built for Solana</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 } 
