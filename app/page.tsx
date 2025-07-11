@@ -46,7 +46,7 @@ export default function HomePage() {
       suffix: ' SOL',
       change: 12.5,
       changeType: 'positive' as const,
-      icon: TrendingUp,
+      icon: <TrendingUp className="w-5 h-5" />,
       description: 'Overall profit and loss'
     },
     {
@@ -55,7 +55,7 @@ export default function HomePage() {
       suffix: '%',
       change: 2.3,
       changeType: 'positive' as const,
-      icon: Target,
+      icon: <Target className="w-5 h-5" />,
       description: 'Percentage of profitable trades'
     },
     {
@@ -64,7 +64,7 @@ export default function HomePage() {
       suffix: 'x',
       change: 0.2,
       changeType: 'positive' as const,
-      icon: Calculator,
+      icon: <Calculator className="w-5 h-5" />,
       description: 'Ratio of gross profit to gross loss'
     },
     {
@@ -73,7 +73,7 @@ export default function HomePage() {
       suffix: '',
       change: 5,
       changeType: 'positive' as const,
-      icon: Activity,
+      icon: <Activity className="w-5 h-5" />,
       description: 'Number of completed transactions'
     },
     {
@@ -82,7 +82,7 @@ export default function HomePage() {
       suffix: ' SOL',
       change: 8.7,
       changeType: 'positive' as const,
-      icon: BarChart3,
+      icon: <BarChart3 className="w-5 h-5" />,
       description: 'Total trading volume'
     },
     {
@@ -91,7 +91,7 @@ export default function HomePage() {
       suffix: '%',
       change: 1.8,
       changeType: 'positive' as const,
-      icon: Percent,
+      icon: <Percent className="w-5 h-5" />,
       description: 'Return on investment'
     }
   ]
