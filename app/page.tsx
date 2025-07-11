@@ -247,7 +247,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="card">
                 <h3 className="text-title text-white mb-6">Performance Chart</h3>
-                <PerformanceChart timeFrame={selectedTimeFrame} />
+                <PerformanceChart timeFrame={selectedTimeFrame} data={walletData?.chartData || []} />
               </div>
               
               <div className="card">
